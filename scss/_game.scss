@@ -1,0 +1,85 @@
+.background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    > span {
+		position: absolute;
+		left: 0;
+		bottom: 0;
+    }
+    .color-1 {
+        --color: #CE3488;
+    }
+    .color-2 {
+        --color: #EAB835;
+    }
+    .color-3 {
+        --color: #1FCCBE;
+	}
+	.test {
+		--color: #F00!important;
+	}
+    .squiggle {
+		margin: -5px -40px;
+        width: 80px;
+        height: 10px;
+        color: var(--color);
+        svg {
+            width: 100%;
+        }
+    }
+    .bubbles {
+		margin: -5px -15px;
+        width: 10px;
+        height: 10px;
+        border: 2px solid var(--color);
+        border-radius: 10px;
+        &::before, &::after {
+            position: inherit;
+            background: inherit;
+            width: inherit;
+            height: inherit;
+            border: inherit;
+            border-radius: inherit;
+            top: -2px;
+            content: '';
+        }
+        &::before {
+            right: 10px;
+        }
+        &::after {
+            left: 10px;
+        }
+    }
+    .square {
+		margin: -5px;
+        width: 10px;
+        height: 10px;
+        background: var(--color);
+    }
+    .triangle {
+		margin: -10px;
+        width: 20px;
+        height: 20px;
+        color: var(--color);
+        svg {
+            width: 100%;
+            height: 100%;
+        }
+	}
+	.player {
+		margin-top: -30px;
+		margin-left: -20px;
+		border-bottom: 30px solid #FFF;
+		border-left: 20px solid transparent;
+		border-right: 20px solid transparent;
+	}
+	.bullet {
+		width: 4px;
+		height: 10px;
+		background: #FFF;
+	}
+}

@@ -1,0 +1,53 @@
+// CrossFit Huey Styles
+
+%site-flex {
+	display: flex;
+	margin: 0 auto;
+	max-width: 1200px;
+	padding: $pad 5%;
+}
+
+%site-width {
+    margin: 0 auto;
+    max-width: 1200px;
+    padding: $pad 5%;
+}
+
+@mixin box-element($size) {
+    position: relative;
+    &::before, &::after {
+        position: absolute;
+        content: '';
+        transform-origin: top left;
+    }
+    &::before {
+        top: 100%;
+        left: 0;
+        width: 100%;
+        height: $size;
+        background: #030303;
+        transform: skewX(45deg);
+    }
+    &::after {
+        top: 0;
+        left: 100%;
+        width: $size;
+        height: 100%;
+        background: #050505;
+        transform: skewY(45deg);
+    }
+}
+
+%box-element {
+    @include box-element(40px);
+}
+
+%transition {
+	transition: .15s ease-in-out;
+}
+
+%link {
+	@extend %transition;
+	padding-bottom: 0.1em;
+	text-decoration: none;
+}

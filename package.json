@@ -1,0 +1,26 @@
+{
+	"name": "space-invaders",
+	"version": "1.0.0",
+	"description": "Space Invaders game in the browser",
+	"main": "index.js",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"keywords": [
+		"website",
+		"spaceinvaders",
+		"games"
+	],
+	"author": "Angus Moore",
+	"license": "MIT",
+	"devDependencies": {
+		"babel-core": "^6.26.3",
+		"babel-preset-env": "^1.7.0",
+		"browser-sync": "^2.24.6",
+		"gulp": "^3.0.0",
+		"gulp-autoprefixer": "^5.0.0",
+		"gulp-babel": "^7.0.1",
+		"gulp-sass": "^4.0.1",
+		"gulp-sourcemaps": "^2.6.4"
+	}
+}

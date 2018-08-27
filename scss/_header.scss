@@ -1,0 +1,188 @@
+.header {
+    @extend %site-width;
+    position: relative;
+    padding: 0;
+    z-index: 1;
+	header {
+        display: flex;
+        padding: 40px;
+        background: darken($purple, 10%);
+        color: $yellow;
+		align-items: center;
+        justify-content: space-between;
+	}
+	.logo {
+        position: relative;
+        display: block;
+		margin: 0;
+        min-width: 220px;
+        max-width: 220px;
+        &::before {
+            position: absolute;
+            content: '';
+            top: 5px;
+            bottom: 5px;
+            left: 40px;
+            right: 45px;
+            border-radius: 100%;
+        }
+		img {
+            position: relative;
+			display: block;
+            width: 100%;
+            z-index: 1;
+        }
+	}
+	.social {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        text-align: right;
+        font-family: $heading-font;
+        a {
+            @extend %transition;
+            display: inline-block;
+            padding: 16px 12px;
+            color: #FFF;
+            font-size: 1.5em;
+            text-decoration: none;
+            &:hover, &:focus {
+                color: #FFF;
+                transform: scale(1.08);
+                text-shadow: 0 0 20px rgba(lighten(#FFF, 10%), .75);
+            }
+            svg {
+                display: block;
+                min-width: 28px;
+                max-width: 28px;
+            }
+        }
+    }
+    .main-nav {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        a {
+            @extend %transition;
+            position: relative;
+            display: inline-block;
+            color: #FFF;
+            padding: $pad/8 $pad/4;
+            text-decoration: none;
+            text-align: center;
+            font-family: $heading-font;
+            font-size: 1.7em;
+            outline: none;
+            &:hover, &:focus {
+                transform: scale(1.08);
+                text-shadow: 0 0 50px rgba(255, 255, 255, .75);
+            }
+            &:active {
+                color: #FFF;
+            }
+            &.active {
+                background: $purple;
+                color: $yellow;
+            }
+            > span {
+                position: relative;
+                z-index: 1;
+            }
+        }
+    }
+}
+.admin-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    padding: 15px 30px;
+    background: #000;
+    color: #FFF;
+    select {
+        margin-left: 10px;
+        background: none;
+        border: 2px solid #FFF;
+        border-radius: 4px;
+        font-size: 1em;
+        color: #FFF;
+        option {
+            color: #000;
+        }
+    }
+    .toggle-page-content {
+        @extend %link;
+        color: #7F7F7F;
+        &:hover, &:focus {
+            color: #FFF;
+        }
+    }
+    .full-width,
+    .page-content {
+        margin-top: 10px;
+        width: 100%;
+    }
+    .page-content {
+        @extend %transition;
+        display: grid;
+        grid-template-columns: 1fr 3fr 1fr;
+        overflow: auto;
+        max-height: 100vh;
+        &.collapse {
+            max-height: 0;
+        }
+        strong {
+            margin: 10px 0;
+            font-size: 1.1em;
+            font-weight: 900;
+        }
+        p {
+            margin-bottom: .75em;
+            &:nth-of-type(3n-2), &:nth-of-type(3n-1) {
+                margin-right: 20px;
+            }
+        }
+    }
+}
+
+@media (min-width: 1281px) {
+    .header header {
+        margin: 0 -40px;
+    }
+}
+
+@media (max-width: 900px) {
+	.header {
+		header {
+			flex-direction: column;
+			padding-bottom: 30px;
+		}
+		.logo {
+            min-width: 0;
+		    width: 200px;
+			margin: 0 0 10px;
+		}
+		.cta-wrapper {
+			flex-direction: row;
+			align-items: center;
+			justify-content: center;
+			width: 100%;
+			.btn {
+				min-width: 0;
+				margin-bottom: 0;
+				padding-left: .7em;
+				padding-right: .7em;
+				white-space: nowrap;
+			}
+			span {
+				margin: 0 15px;
+			}
+        }
+        .social {
+            justify-content: center;
+            .btn {
+                display: none;
+            }
+        }
+    }
+}
