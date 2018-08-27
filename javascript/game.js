@@ -27,7 +27,6 @@ class Game {
 
 	startGame() {
 		document.body.style.overflow = 'hidden'
-		document.body.addEventListener("touchmove", this._preventScroll, false)
 		this.sortShapes()
 
 		// Move enemies left & right
@@ -51,6 +50,9 @@ class Game {
 				this.stopGame()
 			}
 		})
+
+		let background = document.querySelector('.background')
+		background.classList.add('active')
 	}
 
 	stopGame() {
@@ -63,11 +65,8 @@ class Game {
 		this.gameobjects.map(o => o.destroy())
 		this.gameobjects = []
 		this.initBackground()
-	}
-
-	_preventScroll(e) {
-		e.preventDefault()
-		e.stopPropagation()
+		let background = document.querySelector('.background')
+		background.classList.remove('active')
 	}
 
 	initBackground() {
@@ -160,17 +159,18 @@ class Player extends GameObject {
 		this.moving = 0
 		this.el.style.transition = 'all .05s ease-out'
 
-		this.init()
-		this.render()
-
 		this.background = document.querySelector('.background')
 		this.background.appendChild(this.el)
+
+		this.init()
+		this.render()
 
 		this.bullets = []
 	}
 	init() {
-		document.body.addEventListener("touchstart", this.touchStart.bind(this), false)
-		document.body.addEventListener("touchend", this.touchEnd.bind(this), false)
+		this.background.addEventListener("touchstart", this.touchMove.bind(this), false)
+		this.background.addEventListener("touchmove", this.touchMove.bind(this), false)
+		this.background.addEventListener("touchend", this.touchEnd.bind(this), false)
 		document.body.addEventListener('keydown', e => {
 			let kc = e.keyCode ? e.keyCode : e.which
 			if (kc == 37) {
@@ -214,7 +214,7 @@ class Player extends GameObject {
 		this.background.appendChild(bullet.el)
 		this.bullets.push(bullet)
 	}
-	touchStart(e) {
+	touchMove(e) {
 		for (let i = 0; i < e.targetTouches.length; i++) {
 			const target = e.targetTouches[i]
 			if (target.clientY < window.innerHeight * 0.8) {
