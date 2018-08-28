@@ -83,3 +83,57 @@ p {
     font-size: 1.1em;
     line-height: 1.5;
 }
+
+.btn {
+    @extend %transition;
+    @include box-element(10px);
+    position: relative;
+    left: 0;
+    top: 0;
+    display: inline-block;
+    min-width: 180px;
+    padding: .8em 1.25em .5em;
+    font-family: $heading-font;
+    font-weight: 700;
+    font-size: 1.5em;
+    line-height: 1;
+    letter-spacing: 0.03em;
+    outline: 0;
+    border: 0;
+    border-radius: 0;
+    text-decoration: none;
+    text-align: center;
+    box-sizing: border-box;
+    cursor: pointer;
+    background: $pink;
+    color: darken($pink, 25%);
+    user-select: none;
+    box-shadow: 10px 10px 20px darken($pink, 20%);
+    &::before {
+        @extend %transition;
+        background: darken($pink, 8%)!important;
+        // box-shadow: inset 5px -3px 0 0 darken($pink, 28%);
+    }
+    &::after {
+        @extend %transition;
+        background: darken($pink, 4%)!important;
+        // box-shadow: inset -3px 5px 0 0 darken($pink, 25%);
+    }
+    &:hover {
+        @include box-element(15px);
+        top: -5px;
+        left: -5px;
+        box-shadow: 15px 15px 30px darken($pink, 20%);
+    }
+    &:active {
+        @include box-element(5px);
+        top: 5px;
+        left: 5px;
+        background: darken($pink, 4%);
+        box-shadow: 5px 5px 15px darken($pink, 20%);
+    }
+    &:disabled, &.disabled {
+        opacity: 0.8;
+        pointer-events: none;
+    }
+}

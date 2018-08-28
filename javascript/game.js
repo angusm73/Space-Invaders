@@ -1,10 +1,12 @@
 class Game {
 
 	constructor() {
+		this.player = null
 		this.total_squiggle = 8
 		this.total_bubbles = 8
 		this.total_square = 20
 		this.total_triangle = 20
+		this.score = 0
 		this.total_objects = this.total_squiggle + this.total_bubbles + this.total_square + this.total_triangle
 
 		this.body_content = document.querySelectorAll('body > .sw')
@@ -12,8 +14,6 @@ class Game {
 
 		this.initBackground()
 		this.initGame()
-
-		this.player = new Player()
 	}
 
 	initGame() {
@@ -22,12 +22,26 @@ class Game {
 				row.firstElementChild.classList.add('fall')
 			}, i * 600)
 		})
-		setTimeout(this.startGame.bind(this), this.body_content.length * 600)
+		this.start_timer = setTimeout(this.startGame.bind(this), this.body_content.length * 600)
+
+		if (!this.ready) {
+			document.body.addEventListener('keydown', e => {
+				let kc = e.keyCode ? e.keyCode : e.which
+				if (kc == 27) {
+					this.stopGame()
+					this.finishGame()
+				}
+			})
+			document.addEventListener("touchstart", function () { }, false)
+			this.ready = true
+		}
 	}
 
 	startGame() {
-		document.body.style.overflow = 'hidden'
+		document.body.classList.add('gamemode')
 		this.sortShapes()
+		this.score = 0
+		this.renderScore()
 
 		// Move enemies left & right
 		let count = -15
@@ -41,40 +55,64 @@ class Game {
 			}
 			this.gameobjects.map(i => i.x += move_distance)
 			this.gameobjects.map(i => i.render())
+			if (this.gameobjects.length == 0) {
+				this.winScreen()
+			}
 			count++
 		}, 150)
 
-		document.body.addEventListener('keydown', e => {
-			let kc = e.keyCode ? e.keyCode : e.which
-			if (kc == 27) {
-				this.stopGame()
-			}
-		})
+		this.background.classList.add('active')
+		this.background.tabIndex = -1
+		this.background.focus()
 
-		let background = document.querySelector('.background')
-		background.classList.add('active')
+		this.player = new Player()
 	}
 
 	stopGame() {
-		document.body.style.overflow = ''
-		document.body.removeEventListener("touchmove", this._preventScroll, false);
-		this.body_content.forEach(row => {
-			row.firstElementChild.classList.remove('fall')
-		})
+		clearTimeout(this.start_timer)
 		clearInterval(this.game_timer)
 		this.gameobjects.map(o => o.destroy())
 		this.gameobjects = []
+		if (this.player) {
+			this.player.destroy()
+			delete this.player
+		}
+	}
+
+	winScreen() {
+		this.stopGame()
+		this.win_screen = document.createElement('div')
+		this.win_screen.classList.add('win-overlay')
+		this.win_screen.innerHTML = `<h1>You win!</h1><h2>Score: ${this.score}</h2><button class='btn'>Restart</button>`
+		let btn = this.win_screen.querySelector('.btn')
+		btn.addEventListener('click', this.finishGame.bind(this))
+		btn.addEventListener('touchend', this.finishGame.bind(this))
+		document.body.appendChild(this.win_screen)
+	}
+
+	finishGame() {
+		document.body.classList.remove('gamemode')
+		document.body.removeEventListener("touchmove", this._preventScroll, false);
+		if (this.win_screen) {
+			this.win_screen.parentNode.removeChild(this.win_screen)
+		}
+		this.body_content.forEach(row => {
+			row.firstElementChild.classList.remove('fall')
+		})
+		this.background.parentNode.removeChild(this.background)
+		delete this.background
 		this.initBackground()
-		let background = document.querySelector('.background')
-		background.classList.remove('active')
+		this.initGame()
 	}
 
 	initBackground() {
-		let background = document.createElement('div')
+		if (!this.background) {
+			this.background = document.createElement('div')
+			this.background.classList.add('background')
+		}
 		let distance = (x1, y1, x2, y2) => {
 			return Math.sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1))
 		}
-		background.classList.add('background')
 		while (this.gameobjects.length < this.total_objects) {
 			let x = Math.random() * 100
 			let y = Math.random() * 100
@@ -98,10 +136,20 @@ class Game {
 			el.classList.add(shape)
 			el.style.transform = 'rotate(' + (Math.round(Math.random() * 18) * 20) + 'deg)'
 			el.classList.add('color-' + Math.min(3, Math.floor(Math.random() * 4 + 1)))
-			background.appendChild(el)
-			this.gameobjects.push(new GameObject(x, y, el, shape))
+			this.background.appendChild(el)
+			this.gameobjects.push(new Enemy(x, y, el, shape))
 		}
-		document.body.insertBefore(background, document.body.childNodes[0])
+		document.body.insertBefore(this.background, document.body.childNodes[0])
+	}
+
+	renderScore() {
+		let score = this.background.querySelector('.score')
+		if (!score) {
+			score = document.createElement('span')
+			score.classList.add('score')
+			this.background.appendChild(score)
+		}
+		score.innerHTML = this.score
 	}
 
 	sortShapes() {
@@ -140,7 +188,16 @@ class GameObject {
 		this.el.classList.add('shape')
 		this.el.classList.add(shape)
 		this.shape = shape
+		// this.width = this.el.clientWidth
 		this.render()
+		setTimeout(() => {
+			this.width = this.el.clientWidth / window.innerWidth * 100
+			if (shape == 'squiggle') {
+				this.width /= 2
+			} else if (shape == 'bubbles') {
+				this.width *= 3
+			}
+		}, 10)
 	}
 	destroy() {
 		if (this.el.parentNode) {
@@ -150,6 +207,14 @@ class GameObject {
 	render() {
 		this.el.style.transform = `translate(${this.x}vw, ${(100 - this.y) * -1}vh)`
 		this.el.style.webkitTransform = `translate(${this.x}vw, ${(100 - this.y) * -1}vh)`
+	}
+}
+
+class Enemy extends GameObject {
+	destroy() {
+		super.destroy()
+		game.score++
+		game.renderScore()
 	}
 }
 
@@ -171,31 +236,23 @@ class Player extends GameObject {
 		this.background.addEventListener("touchstart", this.touchMove.bind(this), false)
 		this.background.addEventListener("touchmove", this.touchMove.bind(this), false)
 		this.background.addEventListener("touchend", this.touchEnd.bind(this), false)
-		document.body.addEventListener('keydown', e => {
-			let kc = e.keyCode ? e.keyCode : e.which
-			if (kc == 37) {
-				this.moving = -1
-				return false
-			} else if (kc == 39) {
-				this.moving = 1
-				return false
-			} else if (kc == 32) {
-				this.shoot()
-				return false
-			}
-		})
-		document.body.addEventListener('keyup', e => {
-			let kc = e.keyCode ? e.keyCode : e.which
-			if (kc == 37) {
-				this.moving = 0
-			} else if (kc == 39) {
-				this.moving = 0
-			}
-		})
-		setInterval(() => {
+		this.background.addEventListener("keydown", this.keyDown.bind(this), false)
+		this.background.addEventListener("keyup", this.keyUp.bind(this), false)
+		this.timer = setInterval(() => {
 			this.move().render()
 			this.bullets.map(b => b.render())
 		}, 16)
+	}
+	destroy() {
+		super.destroy()
+		clearInterval(this.timer)
+		this.background.removeEventListener("touchstart", this.touchMove.bind(this), false)
+		this.background.removeEventListener("touchmove", this.touchMove.bind(this), false)
+		this.background.removeEventListener("touchend", this.touchEnd.bind(this), false)
+		this.background.removeEventListener("keydown", this.keyDown.bind(this), false)
+		this.background.removeEventListener("keyup", this.keyUp.bind(this), false)
+		this.bullets.map(b => b.destroy())
+		this.bullets = []
 	}
 	move() {
 		if (this.move === 0) {
@@ -210,9 +267,16 @@ class Player extends GameObject {
 		return this
 	}
 	shoot() {
+		if (this.shoot_cooldown) {
+			return
+		}
 		let bullet = new Bullet(this.x, this.y)
 		this.background.appendChild(bullet.el)
 		this.bullets.push(bullet)
+		this.shoot_cooldown = true
+		setTimeout(() => {
+			this.shoot_cooldown = false
+		}, 69)
 	}
 	touchMove(e) {
 		for (let i = 0; i < e.targetTouches.length; i++) {
@@ -238,6 +302,27 @@ class Player extends GameObject {
 			}
 		}
 	}
+	keyDown(e) {
+		let kc = e.keyCode ? e.keyCode : e.which
+		if (kc == 37) {
+			this.moving = -1
+			return false
+		} else if (kc == 39) {
+			this.moving = 1
+			return false
+		} else if (kc == 32) {
+			this.shoot()
+			return false
+		}
+	}
+	keyUp(e) {
+		let kc = e.keyCode ? e.keyCode : e.which
+		if (kc == 37) {
+			this.moving = 0
+		} else if (kc == 39) {
+			this.moving = 0
+		}
+	}
 }
 
 class Bullet extends GameObject {
@@ -246,23 +331,27 @@ class Bullet extends GameObject {
 		this.move()
 	}
 	move() {
-		let timer = setInterval(() => {
+		this.timer = setInterval(() => {
 			this.y -= 0.5
 			if (this.y < 0 || this.checkCollisions()) {
-				clearInterval(timer)
 				this.destroy()
 			}
 		}, 16)
 		return this
 	}
+	destroy() {
+		super.destroy()
+		clearInterval(this.timer)
+	}
 	checkCollisions() {
 		const colliding = game.gameobjects.filter(o => {
-			return o.x > this.x - 1 && o.x < this.x + 1 && o.y > this.y - 0.5 && o.y < this.y + 0.5
+			return o.x + o.width > this.x && o.x - o.width < this.x && o.y > this.y - 0.3 && o.y < this.y + 0.3
 		})
 		colliding.map(o => o.destroy())
 		game.gameobjects = game.gameobjects.filter(o => {
-			return !(o.x > this.x - 1 && o.x < this.x + 1 && o.y > this.y - 0.5 && o.y < this.y + 0.5)
+			return !(o.x + o.width > this.x && o.x - o.width < this.x && o.y > this.y - 0.3 && o.y < this.y + 0.3)
 		})
+		return !!colliding.length
 	}
 }
 
